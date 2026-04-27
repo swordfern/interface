@@ -33,17 +33,18 @@ export class Component {
     }
 
     // attributes
-    setAttribute = (attribute: string, value: string): boolean => {
-        if (illegalAttributes.includes(attribute)) return false;
+    setAttribute = (attribute: string, value: string): typeof this => {
+        if (illegalAttributes.includes(attribute)) return this;
 
         this.attributes.set(attribute, value);
         this.renderer.updateComponent(this);
-        return true;
+        return this;
     };
 
-    removeAttribute = (attribute: string): void => {
+    removeAttribute = (attribute: string): typeof this => {
         this.attributes.delete(attribute);
         this.renderer.updateComponent(this);
+        return this;
     };
 
     getAttribute = (attribute: string): string | undefined => {
@@ -55,11 +56,12 @@ export class Component {
     };
 
     // styles
-    applyStyles = (styles: Styles): void => {
+    applyStyles = (styles: Styles): typeof this => {
         for (const style of styles) {
             this.styles.set(...style);
         }
         this.renderer.updateComponent(this);
+        return this;
     };
 
     listStyles = (): [CSSProperty, string][] => {
@@ -67,7 +69,7 @@ export class Component {
     };
 
     // children
-    addChild = (child: Component, position: RenderPositions): void => {
+    addChild = (child: Component, position: RenderPositions): typeof this => {
         switch (position) {
             case RenderPositions.Leading: {
                 this.children.unshift(child);
@@ -80,14 +82,16 @@ export class Component {
         }
 
         this.renderer.renderComponent(child, this, position);
+        return this;
     };
 
-    removeChild = (child: Component): void => {
+    removeChild = (child: Component): typeof this => {
         const childIndex = this.children.indexOf(child);
-        if (childIndex == -1) return;
+        if (childIndex == -1) return this;
         this.children.splice(childIndex, 1);
 
         this.renderer.removeComponent(child);
+        return this;
     };
 
     getChildComponents = (): Component[] => {
