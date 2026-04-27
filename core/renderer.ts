@@ -16,7 +16,7 @@ export class Renderer {
         this.components.set(component.id, component);
     };
 
-    // methods
+    // rendering
     readonly setRootComponent = (component: Component): void => {
         this.components.clear();
         this.registerComponent(component);
@@ -42,7 +42,7 @@ export class Renderer {
         this.reflectComponentRemoved(component);
     };
 
-    // specific
+    // reflect
     protected readonly reflectComponentAdded = (
         component: Component,
         parent?: Component,
@@ -87,7 +87,7 @@ export class DOMRenderer extends Renderer {
         return this.createElementForComponent(component);
     };
 
-    // main
+    // reflect 
     protected readonly reflectComponentAdded = (
         component: Component,
         parent?: Component,
