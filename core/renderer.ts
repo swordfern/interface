@@ -3,9 +3,17 @@ import { InputComponent } from "../raw-components/inputComponents";
 import { TextComponent } from "../raw-components/textComponents";
 
 // Type Definitions
+export type ClickAction = (component: Component, e: MouseEvent) => void;
+export type KeyAction = (component: Component, e: KeyboardEvent) => void;
+export type ChangeAction<T> = (component: Component, newValue: T) => void;
+
 export class Renderer {
     // data
     readonly components = new Map<string, Component>();
+
+    readonly clickActions = new Map<string, ClickAction>();
+    readonly keyActions = new Map<string, KeyAction>();
+    readonly changeActions = new Map<string, ChangeAction<any>>();
 
     // utility
     readonly getComponentById = (id: string): Component | undefined => {
@@ -42,6 +50,52 @@ export class Renderer {
         this.reflectComponentRemoved(component);
     };
 
+    // events
+    readonly registerClickAction = (
+        component: Component,
+        fn: ClickAction,
+    ): void => {
+        this.clickActions.set(component.id, fn);
+    };
+
+    readonly registerKeyAction = (
+        component: Component,
+        fn: KeyAction,
+    ): void => {
+        this.keyActions.set(component.id, fn);
+    };
+
+    readonly registerChangeAction = <T>(
+        component: InputComponent<T>,
+        fn: ChangeAction<T>,
+    ): void => {
+        this.changeActions.set(component.id, fn);
+    };
+
+    readonly triggerClickAction = (
+        component: Component,
+        e: MouseEvent,
+    ): void => {
+        const fn = this.clickActions.get(component.id);
+        if (!fn) return;
+        fn(component, e);
+    };
+
+    readonly triggerKeyAction = (
+        component: Component,
+        e: KeyboardEvent,
+    ): void => {
+        const fn = this.keyActions.get(component.id);
+        if (!fn) return;
+        fn(component, e);
+    };
+
+    readonly triggerChangeAction = <T>(component: InputComponent<T>): void => {
+        const fn = this.changeActions.get(component.id);
+        if (!fn) return;
+        fn(component, component.value);
+    };
+
     // reflect
     protected readonly reflectComponentAdded = (
         component: Component,
@@ -53,8 +107,7 @@ export class Renderer {
         component: Component,
     ): void => { };
 
-    readonly updateComponent = (component: Component): void => {
-    }
+    readonly updateComponent = (component: Component): void => { };
 }
 
 // Main
@@ -64,11 +117,22 @@ export class DOMRenderer extends Renderer {
         const element = document.createElement(component.type);
         element.id = component.id;
 
+        // attributes + styles
         for (const attribute of component.listAttributes()) {
             element.setAttribute(...attribute);
         }
         for (const style of component.listStyles()) {
             element.style.setProperty(...style);
+        }
+
+        // events
+        element.onclick = (e) => this.triggerClickAction(component, e);
+        element.onkeydown = (e) => this.triggerKeyAction(component, e);
+        if (component instanceof InputComponent) {
+            element.oninput = () => {
+                if ("value" in element) component.setValue(element.value);
+                this.triggerChangeAction(component);
+            };
         }
 
         return element;
@@ -87,7 +151,7 @@ export class DOMRenderer extends Renderer {
         return this.createElementForComponent(component);
     };
 
-    // reflect 
+    // reflect
     protected readonly reflectComponentAdded = (
         component: Component,
         parent?: Component,
@@ -98,6 +162,7 @@ export class DOMRenderer extends Renderer {
             ? this.unwrapElement(parent)
             : document.body;
         const componentElement = this.unwrapElement(component);
+        console.log(parentElement, componentElement);
 
         // add
         switch (position) {
@@ -118,7 +183,8 @@ export class DOMRenderer extends Renderer {
     };
 
     readonly updateComponent = (component: Component): boolean => {
-        const componentElement: HTMLElement | undefined = this.getElementForComponent(component);
+        const componentElement: HTMLElement | undefined =
+            this.getElementForComponent(component);
         if (!componentElement) return false;
 
         // standard
@@ -135,10 +201,13 @@ export class DOMRenderer extends Renderer {
         }
 
         // value
-        if (component instanceof InputComponent && "value" in componentElement) {
+        if (
+            component instanceof InputComponent &&
+            "value" in componentElement
+        ) {
             componentElement.value = component.value;
         }
 
-        return true
-    }
+        return true;
+    };
 }

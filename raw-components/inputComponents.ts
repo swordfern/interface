@@ -1,5 +1,5 @@
 import { Component } from "./component";
-import { Renderer } from "../core/renderer";
+import { ChangeAction, Renderer } from "../core/renderer";
 
 export enum InputComponentTypes {
     Input = "input",
@@ -8,18 +8,33 @@ export enum InputComponentTypes {
 
 export class InputComponent<T> extends Component {
     // init
-    constructor(renderer: Renderer, type: InputComponentTypes, initialValue: T) {
+    constructor(
+        renderer: Renderer,
+        type: InputComponentTypes,
+        initialValue: T,
+    ) {
         super(renderer, type);
         this._value = initialValue;
     }
 
     // specific
     private _value: T;
-    get value(): T{
+    get value(): T {
         return this._value;
     }
-    set value(newValue: T) {
-        this._value= newValue;
+    setValue = (newValue: T): typeof this => {
+        this._value = newValue;
         this.renderer.updateComponent(this);
-    }
+        return this;
+    };
+
+    // events
+    setChangeAction = (fn: ChangeAction<T>): typeof this => {
+        this.renderer.registerChangeAction(this, fn);
+        return this;
+    };
+
+    triggerChangeAction = (): void => {
+        this.renderer.triggerChangeAction(this);
+    };
 }

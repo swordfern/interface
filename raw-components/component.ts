@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { CSSProperty, illegalAttributes, Styles } from "../core/properties";
-import { Renderer } from "../core/renderer";
+import { ClickAction, KeyAction, Renderer } from "../core/renderer";
 
 // Type Definitions
 export type ComponentTypes = keyof HTMLElementTagNameMap;
@@ -69,7 +69,10 @@ export class Component {
     };
 
     // children
-    addChild = (child: Component, position: RenderPositions): typeof this => {
+    addChild = (
+        child: Component,
+        position: RenderPositions = RenderPositions.Trailing,
+    ): typeof this => {
         switch (position) {
             case RenderPositions.Leading: {
                 this.children.unshift(child);
@@ -96,5 +99,26 @@ export class Component {
 
     getChildComponents = (): Component[] => {
         return [...this.children];
+    };
+
+    // events
+    setClickAction = (fn: ClickAction): typeof this => {
+        this.renderer.registerClickAction(this, fn);
+        return this;
+    };
+
+    setKeyAction = (fn: KeyAction): typeof this => {
+        this.renderer.registerKeyAction(this, fn);
+        return this;
+    };
+
+    triggerClickAction = (e: MouseEvent): typeof this => {
+        this.renderer.triggerClickAction(this, e);
+        return this;
+    };
+
+    triggerKeyAction = (e: KeyboardEvent): typeof this => {
+        this.renderer.triggerKeyAction(this, e);
+        return this;
     };
 }

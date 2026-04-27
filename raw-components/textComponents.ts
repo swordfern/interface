@@ -8,6 +8,8 @@ export enum TextComponentTypes {
 
     PrimaryHeadline = "h1",
     SecondaryHeadline = "h2",
+
+    Button = "button",
 }
 
 export class TextComponent extends Component {
@@ -21,8 +23,9 @@ export class TextComponent extends Component {
     get textContent(): string {
         return this._textContent;
     }
-    set textContent(newValue: string) {
+    setContent = (newValue: string): typeof this => {
         this._textContent = newValue;
         this.renderer.updateComponent(this);
-    }
+        return this;
+    };
 }
