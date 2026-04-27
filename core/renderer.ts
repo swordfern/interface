@@ -1,6 +1,6 @@
-import { Component, RenderPositions } from "./component";
-import { InputComponent } from "./inputComponents";
-import { TextComponent } from "./textComponents";
+import { Component, RenderPositions } from "../raw-components/component";
+import { InputComponent } from "../raw-components/inputComponents";
+import { TextComponent } from "../raw-components/textComponents";
 
 // Type Definitions
 export class Renderer {

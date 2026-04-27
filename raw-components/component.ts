@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
-import { CSSProperty, illegalAttributes, Styles } from "./properties";
-import { Renderer } from "./renderer";
+import { CSSProperty, illegalAttributes, Styles } from "../core/properties";
+import { Renderer } from "../core/renderer";
 
 // Type Definitions
 export type ComponentTypes = keyof HTMLElementTagNameMap;

@@ -1,7 +1,7 @@
-export * from "./renderer.ts";
+export * from "./core/renderer.ts";
 
-export * from "./component.ts";
-export * from "./textComponents.ts";
-export * from "./inputComponents.ts";
+export * from "./raw-components/component.ts";
+export * from "./raw-components/textComponents.ts";
+export * from "./raw-components/inputComponents.ts";
 
-export * from "./properties.ts";
+export * from "./core/properties.ts";

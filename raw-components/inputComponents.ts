@@ -1,5 +1,5 @@
 import { Component } from "./component";
-import { Renderer } from "./renderer";
+import { Renderer } from "../core/renderer";
 
 export enum InputComponentTypes {
     Input = "input",
