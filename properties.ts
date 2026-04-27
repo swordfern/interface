@@ -1,12 +1,9 @@
 // ATTRIBUTES
-export const illegalAttributes = [
-    "id", "class", "style",
-]
+export const illegalAttributes = ["id", "class", "style"];
 
 // STYLES
 export type CSSProperty = Exclude<
-    Extract<
-        keyof CSSStyleDeclaration, string>,
+    Extract<keyof CSSStyleDeclaration, string>,
     | "length"
     | "parentRule"
     | "setProperty"

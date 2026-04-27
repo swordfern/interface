@@ -1,63 +1,96 @@
 import { v4 } from "uuid";
 import { CSSProperty, illegalAttributes, Styles } from "./properties";
+import { Renderer } from "./renderer";
 
-export class Component<T extends HTMLElement> {
-    // basic
-    protected element: T;
-    get id(): string {
-        return this.element.id;
-    }
+// Type Definitions
+export type ComponentTypes = keyof HTMLElementTagNameMap;
 
-    // styles
-    readonly componentStyles: Styles = [];
+export enum RenderPositions {
+    Leading,
+    Trailing,
+}
+
+// Main
+export class Component {
+    // data
+    readonly renderer: Renderer;
+
+    readonly id: string;
+    readonly type: ComponentTypes;
+    readonly initialStyles: Styles = [];
+
+    private readonly attributes = new Map<string, string>();
+    private readonly styles = new Map<CSSProperty, string>();
+    private readonly children: Component[] = [];
 
     // init
-    constructor(element: T) {
-        this.element = element;
-        this.element.id = v4();
-        this.setStyles(this.componentStyles);
+    constructor(renderer: Renderer, type: ComponentTypes) {
+        this.renderer = renderer;
+
+        this.id = v4();
+        this.type = type;
+        this.applyStyles(this.initialStyles);
     }
 
-    // Render
-    readonly appendTo = (parent: Component<any>|HTMLElement): void => {
-        if (parent instanceof Component) {
-            parent.element.append(this.element);
-            return
-        }
-        parent.append(this.element);
-    }
-    
-    readonly prependTo = (parent: Component<any>|HTMLElement): void => {
-        if (parent instanceof Component) {
-            parent.element.prepend(this.element);
-            return
-        }
-        parent.prepend(this.element);
-    }
+    // attributes
+    setAttribute = (attribute: string, value: string): boolean => {
+        if (illegalAttributes.includes(attribute)) return false;
 
-    // Attributes
-    readonly setAttribute = (attribute: string, value: string = ""): boolean => {
-        if (illegalAttributes.includes(attribute))
-            return false;
-
-        this.element.setAttribute(attribute, value);
+        this.attributes.set(attribute, value);
+        this.renderer.updateComponent(this);
         return true;
-    }
+    };
 
-    readonly removeAttribute = (attribute: string): void => {
-        this.element.removeAttribute(attribute);
-    }
+    removeAttribute = (attribute: string): void => {
+        this.attributes.delete(attribute);
+        this.renderer.updateComponent(this);
+    };
 
-    // Style
-    readonly setStyles = (styles: Styles): void => {
-        // reset styles
-        this.element.style.cssText = "";
+    getAttribute = (attribute: string): string | undefined => {
+        return this.attributes.get(attribute);
+    };
 
-        // set styles
+    listAttributes = (): [string, string][] => {
+        return [...this.attributes.entries()];
+    };
+
+    // styles
+    applyStyles = (styles: Styles): void => {
         for (const style of styles) {
-            const property: CSSProperty = style[0];
-            const value: string = style[1];
-            this.element.style.setProperty(property, value);
+            this.styles.set(...style);
         }
+        this.renderer.updateComponent(this);
+    };
+
+    listStyles = (): [CSSProperty, string][] => {
+        return [...this.styles.entries()];
+    };
+
+    // children
+    addChild = (child: Component, position: RenderPositions): void => {
+        switch (position) {
+            case RenderPositions.Leading: {
+                this.children.unshift(child);
+                break;
+            }
+            case RenderPositions.Trailing: {
+                this.children.push(child);
+                break;
+            }
+        }
+
+        this.renderer.renderComponent(child, this, position);
+    };
+
+    removeChild = (child: Component): void => {
+        const childIndex = this.children.indexOf(child);
+        if (childIndex == -1) return;
+        this.children.splice(childIndex, 1);
+
+        this.renderer.removeComponent(child);
+    };
+
+    getChildComponents = (): Component[] => {
+        return [...this.children];
     };
 }
