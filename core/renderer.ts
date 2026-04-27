@@ -162,7 +162,6 @@ export class DOMRenderer extends Renderer {
             ? this.unwrapElement(parent)
             : document.body;
         const componentElement = this.unwrapElement(component);
-        console.log(parentElement, componentElement);
 
         // add
         switch (position) {

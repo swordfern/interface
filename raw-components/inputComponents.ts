@@ -4,6 +4,7 @@ import { ChangeAction, Renderer } from "../core/renderer";
 export enum InputComponentTypes {
     Input = "input",
     Textarea = "textarea",
+    Dropdown = "select",
 }
 
 export class InputComponent<T> extends Component {

@@ -1,25 +1,23 @@
 import { Component } from "./component";
 import { Renderer } from "../core/renderer";
 
-export enum TextComponentTypes {
-    Paragraph = "p",
-    Span = "span",
-    Label = "label",
+export enum ContainingComponentTypes {
+    Generic = "div",
+    Section = "section",
 
-    ListItem = "li",
+    Table = "table",
+    TableHeader = "thead",
+    TableBody = "tbody",
+    TableRow = "tr",
+    TableCell = "td",
 
-    PrimaryHeadline = "h1",
-    SecondaryHeadline = "h2",
-
-    Button = "button",
-    Link = "a",
-
-    Option = "option",
+    BulletList = "ul",
+    OrderedList = "ol",
 }
 
-export class TextComponent extends Component {
+export class ContainingComponent extends Component {
     // init
-    constructor(renderer: Renderer, type: TextComponentTypes) {
+    constructor(renderer: Renderer, type: ContainingComponentTypes) {
         super(renderer, type);
     }
 
