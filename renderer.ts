@@ -1,4 +1,5 @@
 import { Component, RenderPositions } from "./component";
+import { InputComponent } from "./inputComponents";
 import { TextComponent } from "./textComponents";
 
 // Type Definitions
@@ -131,6 +132,11 @@ export class DOMRenderer extends Renderer {
         // text
         if (component instanceof TextComponent) {
             componentElement.innerText = component.textContent;
+        }
+
+        // value
+        if (component instanceof InputComponent && "value" in componentElement) {
+            componentElement.value = component.value;
         }
 
         return true
