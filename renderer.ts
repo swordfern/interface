@@ -1,4 +1,5 @@
 import { Component, RenderPositions } from "./component";
+import { TextComponent } from "./textComponents";
 
 // Type Definitions
 export class Renderer {
@@ -119,11 +120,17 @@ export class DOMRenderer extends Renderer {
         const componentElement: HTMLElement | undefined = this.getElementForComponent(component);
         if (!componentElement) return false;
 
+        // standard
         for (const attribute of component.listAttributes()) {
             componentElement.setAttribute(...attribute);
         }
         for (const style of component.listStyles()) {
             componentElement.style.setProperty(...style);
+        }
+
+        // text
+        if (component instanceof TextComponent) {
+            componentElement.innerText = component.textContent;
         }
 
         return true
